@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>itrend 訂閱達成率儀表板</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --border: #E2E0DA;
+    --border-strong: #C8C5BD;
+    --text-primary: #1A1916;
+    --text-secondary: #6B6860;
+    --text-muted: #A8A59E;
+    --blue: #1A5FBF;
+    --blue-light: #E8F0FB;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --amber: #B85C00;
+    --amber-light: #FEF3E2;
+    --green: #2D6A2D;
+    --green-light: #EAF5EA;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Noto Sans TC', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  .container { max-width: 860px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-left {}
+  .product-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--blue);
+    background: var(--blue-light);
+    padding: 3px 8px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .header-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .updated-at {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  /* ── 編輯模式切換 ── */
+  .edit-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    justify-content: flex-end;
+  }
+  .edit-toggle label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-btn {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    cursor: pointer;
+  }
+  .toggle-btn input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border-strong);
+    border-radius: 10px;
+    transition: background 0.2s;
+  }
+  .toggle-btn input:checked + .toggle-track { background: var(--blue); }
+  .toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    pointer-events: none;
+  }
+  .toggle-btn input:checked ~ .toggle-thumb { transform: translateX(16px); }
+
+  /* Metric cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .card-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+  }
+  .card-value {
+    font-family: var(--mono);
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .card-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* Table */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-align: right;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.04em;
+    background: var(--bg);
+    white-space: nowrap;
+  }
+  th:first-child { text-align: left; }
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-family: var(--mono);
+    font-size: 15px;
+  }
+  td:first-child {
+    text-align: left;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 15px;
+  }
+  tr:last-child td { border-bottom: none; }
+  .row-now td { background: #FAFAF8; }
+  .total-row td { border-top: 2px solid var(--border-strong); font-weight: 500; background: var(--bg); }
+
+  .badge-now {
+    display: inline-block;
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+    margin-left: 6px;
+    background: var(--blue-light);
+    color: var(--blue);
+    font-family: var(--sans);
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+  }
+
+  .muted { color: var(--text-muted); font-family: var(--mono); }
+
+  .pct-red { color: var(--red); }
+  .pct-amber { color: var(--amber); }
+  .pct-green { color: var(--green); }
+
+  .bar-wrap {
+    display: inline-block;
+    width: 48px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-left: 6px;
+    overflow: hidden;
+  }
+  .bar { height: 4px; border-radius: 2px; display: inline-block; transition: width 0.4s ease; }
+
+  /* Editable input */
+  input[type=number].actual-input {
+    width: 64px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
+    font-family: var(--mono);
+    text-align: right;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    transition: border-color 0.15s;
+  }
+  input[type=number].actual-input:focus {
+    outline: none;
+    border-color: var(--blue);
+    background: var(--surface);
+  }
+  input[type=number].actual-input:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  /* Edit mode off: inputs become plain text */
+  body.view-mode input[type=number].actual-input {
+    pointer-events: none;
+    border-color: transparent;
+    background: transparent;
+    opacity: 1;
+  }
+
+  .edit-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-align: right;
+    transition: opacity 0.2s;
+  }
+  body.view-mode .edit-hint { opacity: 0; }
+
+  /* Footer */
+  .footer {
+    margin-top: 32px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 600px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    .header { flex-direction: column; gap: 8px; }
+    .updated-at { text-align: left; }
+    th, td { padding: 8px 10px; }
+    .bar-wrap { width: 32px; }
+  }
+</style>
+</head>
+<body class="view-mode">
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="product-tag">115年韌性專案</div>
+      <h1>企業進出口數據看板</h1>
+      <div class="header-sub">訂閱達成率儀表板 · NT$999／年 · 年度目標 300 席</div>
+    </div>
+    <div class="updated-at" id="updated-at"></div>
+  </div>
+
+  <div class="edit-toggle">
+    <label for="editToggle">編輯模式</label>
+    <label class="toggle-btn">
+      <input type="checkbox" id="editToggle" onchange="toggleEdit(this.checked)">
+      <span class="toggle-track"></span>
+      <span class="toggle-thumb"></span>
+    </label>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <p class="edit-hint" id="editHint">開啟「編輯模式」後點擊月度實績欄位輸入數字，離開欄位自動儲存。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>月份</th>
+          <th>月度目標</th>
+          <th>月度實績</th>
+          <th>月度達成率</th>
+          <th>年度累計目標</th>
+          <th>年度累計實績</th>
+          <th>年度達成率</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer" id="footer"></div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//   ★  在這裡更新數據  ★
+//   actuals = 各月實際報名人數
+//   null = 尚未到該月，留空
+// ══════════════════════════════════════════════
+const CONFIG = {
+  productName: 'itrend 企業進出口數據看板',
+  yearTotal: 300,
+  currentMonthIndex: 0,  // 0=4月, 1=5月, 2=6月 ...
+  months:         ['4月','5月','6月','7月','8月','9月','10月','11月'],
+  monthlyTargets: [  15,   30,   35,   40,   40,   40,    50,    50],
+  actuals:        [   6, null, null, null, null, null,  null,  null],
+  lastUpdated:    '2026/04/17',
+};
+// ══════════════════════════════════════════════
+
+const actuals = [...CONFIG.actuals];
+
+function color(pct) {
+  if (pct === null) return { cls: 'muted', bar: '#C8C5BD' };
+  if (pct < 50)  return { cls: 'pct-red',   bar: '#C0392B' };
+  if (pct < 80)  return { cls: 'pct-amber', bar: '#B85C00' };
+  return             { cls: 'pct-green',  bar: '#2D6A2D' };
+}
+
+function pctBar(pct, c) {
+  if (pct === null) return '<span class="muted">—</span>';
+  return `<span class="${c.cls}">${pct}%</span><span class="bar-wrap"><span class="bar" style="width:${Math.min(pct,100)}%;background:${c.bar};"></span></span>`;
+}
+
+function render() {
+  let cumTarget = 0, cumActual = 0;
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  CONFIG.months.forEach((m, i) => {
+    cumTarget += CONFIG.monthlyTargets[i];
+    if (actuals[i] !== null) cumActual += actuals[i];
+
+    const a = actuals[i];
+    const monthPct = a !== null ? Math.round(a / CONFIG.monthlyTargets[i] * 100) : null;
+    const yearPct  = a !== null ? Math.round(cumActual / cumTarget * 100) : null;
+    const mc = color(monthPct), yc = color(yearPct);
+    const isNow    = i === CONFIG.currentMonthIndex;
+    const isFuture = i > CONFIG.currentMonthIndex;
+
+    const tr = document.createElement('tr');
+    if (isNow) tr.className = 'row-now';
+
+    const badge = isNow ? `<span class="badge-now">本月</span>` : '';
+    const tgt   = isFuture ? `<span class="muted">${CONFIG.monthlyTargets[i]}</span>` : CONFIG.monthlyTargets[i];
+    const ctgt  = isFuture ? `<span class="muted">${cumTarget}</span>` : cumTarget;
+    const cact  = yearPct !== null ? cumActual : '<span class="muted">—</span>';
+
+    tr.innerHTML = `
+      <td>${m}${badge}</td>
+      <td>${tgt}</td>
+      <td></td>
+      <td>${pctBar(monthPct, mc)}</td>
+      <td>${ctgt}</td>
+      <td>${cact}</td>
+      <td>${pctBar(yearPct, yc)}</td>
+    `;
+
+    // Actual input cell
+    const actualCell = tr.cells[2];
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'actual-input';
+    inp.min = 0; inp.max = 999;
+    inp.placeholder = '—';
+    if (a !== null) inp.value = a;
+
+    inp.addEventListener('change', () => {
+      const v = inp.value.trim();
+      actuals[i] = v === '' ? null : Math.max(0, parseInt(v) || 0);
+      render();
+      saveLocal();
+    });
+    actualCell.appendChild(inp);
+    tbody.appendChild(tr);
+  });
+
+  // Total row
+  const totalActual = actuals.filter(a => a !== null).reduce((s, a) => s + a, 0);
+  const totalPct = Math.round(totalActual / CONFIG.yearTotal * 100);
+  const tc = color(totalPct);
+  const tr = document.createElement('tr');
+  tr.className = 'total-row';
+  tr.innerHTML = `
+    <td>年度合計</td>
+    <td>${CONFIG.yearTotal}</td>
+    <td>${totalActual}</td>
+    <td>${pctBar(totalPct, tc)}</td>
+    <td>—</td><td>—</td><td>—</td>
+  `;
+  tbody.appendChild(tr);
+
+  renderCards(totalActual, totalPct);
+}
+
+function renderCards(totalActual, totalPct) {
+  const i  = CONFIG.currentMonthIndex;
+  const a  = actuals[i] ?? 0;
+  const tgt = CONFIG.monthlyTargets[i];
+  const nowPct = Math.round(a / tgt * 100);
+  const remaining = CONFIG.yearTotal - totalActual;
+
+  const cards = [
+    { label: '本月達成率', value: nowPct + '%',         sub: `${a} / ${tgt} 人`,     cls: color(nowPct).cls },
+    { label: '年度進度',   value: totalPct + '%',        sub: `累計 ${totalActual} 人`, cls: color(totalPct).cls },
+    { label: '年度目標',   value: CONFIG.yearTotal + ' 人', sub: '2026 全年',           cls: '' },
+    { label: '尚需達成',   value: remaining + ' 人',     sub: '距年度目標',            cls: remaining > 0 ? 'pct-amber' : 'pct-green' },
+  ];
+  document.getElementById('cards').innerHTML = cards.map(c => `
+    <div class="card">
+      <div class="card-label">${c.label}</div>
+      <div class="card-value ${c.cls}">${c.value}</div>
+      <div class="card-sub">${c.sub}</div>
+    </div>
+  `).join('');
+}
+
+function toggleEdit(on) {
+  document.body.classList.toggle('view-mode', !on);
+  document.getElementById('editHint').textContent = on
+    ? '點擊月度實績欄位輸入數字，離開欄位自動儲存。'
+    : '開啟「編輯模式」後點擊月度實績欄位輸入數字，離開欄位自動儲存。';
+}
+
+function saveLocal() {
+  try { localStorage.setItem('itrend_actuals', JSON.stringify(actuals)); } catch(e) {}
+}
+
+function loadLocal() {
+  try {
+    const saved = localStorage.getItem('itrend_actuals');
+    if (saved) {
+      const arr = JSON.parse(saved);
+      arr.forEach((v, i) => { if (i < actuals.length) actuals[i] = v; });
+    }
+  } catch(e) {}
+}
+
+// Updated timestamp
+document.getElementById('updated-at').innerHTML =
+  `最後更新<br>${CONFIG.lastUpdated}`;
+
+// Footer
+document.getElementById('footer').textContent = '';
+
+loadLocal();
+render();
+</script>
+</body>
+</html>
