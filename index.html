@@ -109,7 +109,9 @@
 // ══════════════════════════════════════════
 const SHEET_ID = '1kUFvr6J-WIgaSCyU0jt16-jmuXq3edWn1LAJoQ0zaUo';
 const YEAR_TOTAL = 300;
-const CURRENT_MONTH_LABEL = '4月'; // ← 每月改這裡：4月/5月/6月…
+const PROJECT_MONTHS = ['4月','5月','6月','7月','8月','9月','10月','11月'];
+const _m = new Date().getMonth() + 1;
+const CURRENT_MONTH_LABEL = PROJECT_MONTHS.includes(_m + '月') ? _m + '月' : PROJECT_MONTHS[PROJECT_MONTHS.length - 1];
 // ══════════════════════════════════════════
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbxkCGwoOsslEAq-8bXnxpKToga56iZ13Es3nvtjPxjqlf2G-KWSKAZfezSa9UMIvvgk/exec';
@@ -198,10 +200,10 @@ function renderCards(data, totalActual, totalPct) {
   const remaining = YEAR_TOTAL - totalActual;
 
   document.getElementById('cards').innerHTML = [
-    { label: '本月達成率', value: nowPct + '%',        sub: `${nowActual} / ${nowTarget} 人`, cls: colorInfo(nowPct).cls },
-    { label: '年度進度',   value: totalPct + '%',       sub: `累計 ${totalActual} 人`,        cls: colorInfo(totalPct).cls },
-    { label: '年度目標',   value: YEAR_TOTAL + ' 人',   sub: '2026 全年',                     cls: '' },
-    { label: '尚需達成',   value: remaining + ' 人',    sub: '距年度目標',                    cls: remaining > 0 ? 'pct-amber' : 'pct-green' },
+    { label: '本月達成率', value: nowPct + '%',        sub: `${nowActual} / ${nowTarget} 家`, cls: colorInfo(nowPct).cls },
+    { label: '年度進度',   value: totalPct + '%',       sub: `累計 ${totalActual} 家`,        cls: colorInfo(totalPct).cls },
+    { label: '年度目標',   value: YEAR_TOTAL + ' 家',   sub: '2026 全年',                     cls: '' },
+    { label: '尚需達成',   value: remaining + ' 家',    sub: '距年度目標',                    cls: remaining > 0 ? 'pct-amber' : 'pct-green' },
   ].map(c => `
     <div class="card">
       <div class="card-label">${c.label}</div>
@@ -221,7 +223,7 @@ async function init() {
     render(data);
   } catch(e) {
     document.getElementById('status').className = 'status error';
-    document.getElementById('status').innerHTML = `無法讀取資料，請確認 Google Sheets 已設為「知道連結的人可檢視」。<br><button class="refresh-btn" onclick="init()">重新載入</button>`;
+    document.getElementById('status').innerHTML = `無法讀取資料，請確認 Google Sheets 已設為「知道連結的家可檢視」。<br><button class="refresh-btn" onclick="init()">重新載入</button>`;
   }
 }
 
