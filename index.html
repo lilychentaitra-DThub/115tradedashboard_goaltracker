@@ -151,7 +151,7 @@ function render(data) {
     if (row.actual !== null) cumActual += row.actual;
 
     const monthPct = row.actual !== null ? Math.round(row.actual / row.target * 100) : null;
-    const yearPct  = row.actual !== null ? Math.round(cumActual / cumTarget * 100) : null;
+    const yearPct  = row.actual !== null ? Math.round(cumActual / YEAR_TOTAL * 100) : null;
     const mc = colorInfo(monthPct), yc = colorInfo(yearPct);
     const isNow    = row.month === CURRENT_MONTH_LABEL;
     const isFuture = row.actual === null;
