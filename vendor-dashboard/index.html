@@ -1,1 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企業進出口數據看板｜執行進度</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f5f6f8;
+  --surface:   #ffffff;
+  --card:      #ffffff;
+  --border:    #e5e7eb;
+  --border2:   #d1d5db;
+  --text:      #111827;
+  --muted:     #6b7280;
+  --dim:       #9ca3af;
+  --blue:      #1A6FBF;
+  --blue-bg:   rgba(26,111,191,0.07);
+  --blue-br:   #2580d8;
+  --green:     #16a34a;
+  --green-bg:  rgba(22,163,74,0.07);
+  --yellow:    #ca8a04;
+  --yellow-bg: rgba(202,138,4,0.07);
+  --orange:    #ea580c;
+  --orange-bg: rgba(234,88,12,0.07);
+  --purple:    #7c3aed;
+  --purple-bg: rgba(124,58,237,0.07);
+  --teal:      #0d9488;
+  --teal-bg:   rgba(13,148,136,0.07);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Noto Sans TC', sans-serif;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{background:var(--bg);}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;}
 
+/* HEADER */
+header{
+  padding:16px 36px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);background:var(--surface);
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 0 var(--border);
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{
+  width:34px;height:34px;border-radius:8px;background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;
+  box-shadow:0 2px 6px rgba(26,111,191,0.3);
+}
+.brand-name{font-size:15px;font-weight:600;letter-spacing:0.01em;color:var(--text);}
+.brand-desc{font-size:11px;color:var(--muted);margin-top:1px;}
+.header-right{display:flex;align-items:center;gap:14px;}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-family:var(--mono);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 2px rgba(22,163,74,0.2);animation:blink 2.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 2px rgba(22,163,74,0.2)}50%{opacity:0.4;box-shadow:none}}
+.ts{font-size:11px;color:var(--dim);font-family:var(--mono);}
+.upload-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;
+  background:var(--surface);border:1px solid var(--border2);color:var(--muted);
+  font-size:12px;font-family:var(--sans);cursor:pointer;transition:all 0.15s;
+  box-shadow:var(--shadow);
+}
+.upload-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);}
+#csvInput{display:none;}
+
+/* MAIN */
+main{padding:28px 36px 60px;max-width:1240px;margin:0 auto;}
+
+/* SECTION LABEL */
+.sec{
+  font-size:10px;font-family:var(--mono);color:var(--dim);text-transform:uppercase;
+  letter-spacing:0.1em;margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.sec::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* HERO */
+.hero{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:28px 32px;margin-bottom:24px;
+  display:flex;align-items:center;justify-content:space-between;gap:40px;
+  box-shadow:var(--shadow);
+}
+.hero-left h2{font-size:10px;font-family:var(--mono);color:var(--dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+.hero-num{font-size:68px;font-weight:900;font-family:var(--mono);line-height:1;letter-spacing:-4px;}
+.hero-num .hi{color:var(--blue);}
+.hero-num .lo{color:var(--dim);font-size:44px;font-weight:300;}
+.hero-sub{font-size:13px;color:var(--muted);margin-top:8px;}
+.hero-sub strong{color:var(--text);}
+.hero-right{flex:1;max-width:520px;}
+.prog-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.prog-head span{font-size:13px;color:var(--muted);}
+.prog-head strong{font-family:var(--mono);font-size:20px;color:var(--blue);}
+.prog-bar{height:12px;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+.prog-fill{
+  height:100%;border-radius:5px;
+  background:linear-gradient(90deg,var(--blue) 0%,#2580d8 60%,#3b9af0 100%);
+  transition:width 1.4s cubic-bezier(0.4,0,0.2,1);
+}
+.prog-ticks{display:flex;justify-content:space-between;margin-top:6px;}
+.prog-ticks span{font-size:10px;color:var(--dim);font-family:var(--mono);}
+.milestones{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.ms{display:flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);}
+.ms-dot{width:7px;height:7px;border-radius:50%;}
+
+/* PIPELINE */
+.pipeline{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:24px;}
+.pc{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:18px 16px 14px;position:relative;overflow:hidden;
+  transition:box-shadow 0.2s,transform 0.15s;
+  box-shadow:var(--shadow);
+}
+.pc:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.pc-1::before{background:var(--blue);}
+.pc-2::before{background:var(--green);}
+.pc-3::before{background:var(--yellow);}
+.pc-4::before{background:var(--orange);}
+.pc-5::before{background:var(--purple);}
+.pc-6::before{background:var(--teal);}
+.pc-step{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+.sn{width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+.pc-1 .sn{background:var(--blue-bg);color:var(--blue);}
+.pc-2 .sn{background:var(--green-bg);color:var(--green);}
+.pc-3 .sn{background:var(--yellow-bg);color:var(--yellow);}
+.pc-4 .sn{background:var(--orange-bg);color:var(--orange);}
+.pc-5 .sn{background:var(--purple-bg);color:var(--purple);}
+.pc-6 .sn{background:var(--teal-bg);color:var(--teal);}
+.pc-num{font-size:42px;font-weight:700;font-family:var(--mono);line-height:1;letter-spacing:-2px;margin-bottom:4px;}
+.pc-1 .pc-num{color:var(--blue);}
+.pc-2 .pc-num{color:var(--green);}
+.pc-3 .pc-num{color:var(--yellow);}
+.pc-4 .pc-num{color:var(--orange);}
+.pc-5 .pc-num{color:var(--purple);}
+.pc-6 .pc-num{color:var(--teal);}
+.pc-label{font-size:13px;color:var(--text);font-weight:500;margin-bottom:1px;}
+.pc-sub{font-size:11px;color:var(--muted);}
+.pc-bar{height:3px;background:var(--bg);border-radius:2px;margin-top:12px;overflow:hidden;}
+.pc-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(0.4,0,0.2,1) 0.3s;}
+.pc-1 .pc-fill{background:var(--blue);}
+.pc-2 .pc-fill{background:var(--green);}
+.pc-3 .pc-fill{background:var(--yellow);}
+.pc-4 .pc-fill{background:var(--orange);}
+.pc-5 .pc-fill{background:var(--purple);}
+.pc-6 .pc-fill{background:var(--teal);}
+
+/* FUNNEL */
+.funnel{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;margin-bottom:24px;display:flex;
+  box-shadow:var(--shadow);
+}
+.fn{
+  flex:1;padding:16px 12px;text-align:center;
+  border-right:1px solid var(--border);position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:background 0.15s;
+}
+.fn:last-child{border-right:none;}
+.fn:hover{background:var(--bg);}
+.fn::after{
+  content:'›';position:absolute;right:-1px;top:50%;transform:translateY(-50%);
+  color:var(--border2);font-size:18px;background:var(--card);padding:0 2px;z-index:1;
+}
+.fn:last-child::after{display:none;}
+.fn-step{font-size:9px;font-family:var(--mono);color:var(--dim);letter-spacing:0.06em;text-transform:uppercase;}
+.fn-num{font-size:26px;font-weight:700;font-family:var(--mono);line-height:1.1;letter-spacing:-1px;}
+.fn-label{font-size:11px;color:var(--muted);}
+.fn-pct{font-size:11px;font-family:var(--mono);font-weight:500;}
+.fn-1 .fn-num,.fn-1 .fn-pct{color:var(--blue);}
+.fn-2 .fn-num,.fn-2 .fn-pct{color:var(--green);}
+.fn-3 .fn-num,.fn-3 .fn-pct{color:var(--yellow);}
+.fn-4 .fn-num,.fn-4 .fn-pct{color:var(--orange);}
+.fn-5 .fn-num,.fn-5 .fn-pct{color:var(--purple);}
+.fn-6 .fn-num,.fn-6 .fn-pct{color:var(--teal);}
+
+/* BREAKDOWN */
+.brow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+.bc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;box-shadow:var(--shadow);}
+.bc-t{font-size:11px;font-family:var(--mono);color:var(--dim);letter-spacing:0.05em;margin-bottom:16px;text-transform:uppercase;}
+.bar-item{margin-bottom:10px;}
+.bar-item:last-child{margin-bottom:0;}
+.bar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.bar-name{font-size:12px;color:var(--text);}
+.bar-val{font-size:12px;font-family:var(--mono);color:var(--muted);}
+.bar-track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--border);}
+.bar-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(0.4,0,0.2,1) 0.5s;}
+
+/* REGION */
+.region-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:24px;box-shadow:var(--shadow);}
+.rgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px;}
+.ri{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 10px;text-align:center;}
+.ri-name{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.ri-num{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--blue);}
+.ri-bar{height:3px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden;}
+.ri-fill{height:100%;background:var(--blue);border-radius:2px;transition:width 1s cubic-bezier(0.4,0,0.2,1) 0.7s;}
+
+/* EMPTY */
+.empty{text-align:center;padding:80px 20px;color:var(--muted);}
+.empty h3{font-size:18px;margin-bottom:8px;color:var(--text);}
+.empty p{font-size:13px;margin-bottom:24px;}
+.empty-btn{
+  display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;
+  background:var(--blue);border:none;color:#fff;font-size:13px;font-family:var(--sans);
+  cursor:pointer;transition:background 0.15s;box-shadow:0 2px 8px rgba(26,111,191,0.3);
+}
+.empty-btn:hover{background:var(--blue-br);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-bg.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:32px;width:460px;animation:pop 0.18s ease;box-shadow:var(--shadow-md);}
+@keyframes pop{from{transform:scale(0.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text);}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.8;}
+.drop{border:2px dashed var(--border2);border-radius:8px;padding:34px 20px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.drop:hover,.drop.drag{border-color:var(--blue);background:var(--blue-bg);}
+.drop svg{margin-bottom:10px;opacity:0.3;color:var(--blue);}
+.drop p{font-size:13px;color:var(--muted);}
+.drop strong{color:var(--text);}
+.mfoot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px;}
+.mhint{font-size:11px;color:var(--dim);font-family:var(--mono);}
+.mclose{padding:6px 14px;border-radius:6px;font-size:13px;font-family:var(--sans);cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--muted);transition:all 0.15s;}
+.mclose:hover{color:var(--text);border-color:var(--muted);}
+
+footer{border-top:1px solid var(--border);padding:14px 36px;text-align:center;font-size:11px;color:var(--dim);font-family:var(--mono);background:var(--surface);}
+
+@media(max-width:900px){
+  .pipeline{grid-template-columns:repeat(3,1fr);}
+  .brow{grid-template-columns:1fr;}
+  .rgrid{grid-template-columns:repeat(3,1fr);}
+  main,header,footer{padding-left:20px;padding-right:20px;}
+  .hero{flex-direction:column;}
+  .hero-right{max-width:100%;width:100%;}
+}
+@media(max-width:600px){
+  .pipeline{grid-template-columns:repeat(2,1fr);}
+  .funnel{flex-wrap:wrap;}
+  .fn{min-width:33%;border-bottom:1px solid var(--border);}
+  .fn::after{display:none;}
+  .rgrid{grid-template-columns:repeat(2,1fr);}
+  .hero-num{font-size:52px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark" style="background:none;box-shadow:none;font-size:26px;">📊</div>
+    <div>
+      <div class="brand-name">企業進出口數據看板</div>
+      <div class="brand-desc">韌性特別預算案 · 廠商執行進度</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live"><div class="live-dot"></div>即時看板</div>
+    <span class="ts" id="ts">—</span>
+    <button class="upload-btn" onclick="openModal()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      更新資料
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="empty" id="emptyState">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 14px;display:block;opacity:0.2;color:var(--blue)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <h3>尚未載入資料</h3>
+    <p>請上傳廠商檢核表 CSV，或點下方載入示範資料</p>
+    <button class="empty-btn" onclick="loadSample()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+      載入示範資料
+    </button>
+  </div>
+
+  <div id="dash" style="display:none">
+
+    <div class="sec">年度目標達成</div>
+    <div class="hero">
+      <div class="hero-left">
+        <h2>已繳費家數</h2>
+        <div class="hero-num">
+          <span class="hi" id="hN">0</span>
+          <span class="lo"> / 300</span>
+        </div>
+        <div class="hero-sub">距離目標還需 <strong id="hR">0</strong> 家</div>
+      </div>
+      <div class="hero-right">
+        <div class="prog-head">
+          <span>年度達成率</span>
+          <strong id="hP">0%</strong>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="hPB" style="width:0%"></div></div>
+        <div class="prog-ticks"><span>0</span><span>75</span><span>150</span><span>225</span><span>300</span></div>
+        <div class="milestones" id="mstones"></div>
+      </div>
+    </div>
+
+    <div class="sec">執行流程進度</div>
+    <div class="pipeline">
+      <div class="pc pc-1">
+        <div class="pc-step"><div class="sn">1</div>已報名</div>
+        <div class="pc-num" id="n1">0</div>
+        <div class="pc-label">廠商報名</div>
+        <div class="pc-sub">審核資格符合</div>
+        <div class="pc-bar"><div class="pc-fill" id="b1" style="width:0%"></div></div>
+      </div>
+      <div class="pc pc-2">
+        <div class="pc-step"><div class="sn">2</div>已繳費</div>
+        <div class="pc-num" id="n2">0</div>
+        <div class="pc-label">繳費完成</div>
+        <div class="pc-sub">NT$999 年費已收</div>
+        <div class="pc-bar"><div class="pc-fill" id="b2" style="width:0%"></div></div>
+      </div>
+      <div class="pc pc-3">
+        <div class="pc-step"><div class="sn">3</div>問卷寄出</div>
+        <div class="pc-num" id="n3">0</div>
+        <div class="pc-label">調查問卷寄送</div>
+        <div class="pc-sub">需求調查進行中</div>
+        <div class="pc-bar"><div class="pc-fill" id="b3" style="width:0%"></div></div>
+      </div>
+      <div class="pc pc-4">
+        <div class="pc-step"><div class="sn">4</div>已回填</div>
+        <div class="pc-num" id="n4">0</div>
+        <div class="pc-label">問卷已回填</div>
+        <div class="pc-sub">需求確認完成</div>
+        <div class="pc-bar"><div class="pc-fill" id="b4" style="width:0%"></div></div>
+      </div>
+      <div class="pc pc-5">
+        <div class="pc-step"><div class="sn">5</div>製作中</div>
+        <div class="pc-num" id="n5">0</div>
+        <div class="pc-label">看板製作中</div>
+        <div class="pc-sub">Power BI 建置</div>
+        <div class="pc-bar"><div class="pc-fill" id="b5" style="width:0%"></div></div>
+      </div>
+      <div class="pc pc-6">
+        <div class="pc-step"><div class="sn">6</div>已完成</div>
+        <div class="pc-num" id="n6">0</div>
+        <div class="pc-label">看板已交付</div>
+        <div class="pc-sub">服務啟用完成</div>
+        <div class="pc-bar"><div class="pc-fill" id="b6" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="brow">
+      <div class="bc"><div class="bc-t">產業別分佈</div><div id="indBars"></div></div>
+      <div class="bc"><div class="bc-t">報名管道</div><div id="chBars"></div></div>
+    </div>
+
+    <div class="sec">區域分佈</div>
+    <div class="region-card">
+      <div class="rgrid" id="rgrid"></div>
+    </div>
+
+  </div>
+</main>
+
+<footer>TAITRA · 企業進出口數據看板 · 韌性特別預算案 &nbsp;|&nbsp; <span id="ftxt">—</span></footer>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>更新看板資料</h3>
+    <p>從 Google Sheets「廠商檢核表」匯出 CSV（檔案 → 下載 → CSV 格式），再上傳至此。<br>所有資料僅在本機瀏覽器處理，<strong style="color:var(--text)">不會上傳至任何伺服器</strong>。</p>
+    <div class="drop" id="drop" onclick="document.getElementById('csvInput').click()">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <p><strong>點擊選擇 CSV 檔案</strong></p>
+      <p>或拖曳至此</p>
+    </div>
+    <input type="file" id="csvInput" accept=".csv">
+    <div class="mfoot">
+      <span class="mhint" id="upStat">尚未選擇檔案</span>
+      <button class="mclose" onclick="closeModal()">關閉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLRS = ['#1A6FBF','#16a34a','#ca8a04','#ea580c','#7c3aed','#0d9488','#dc2626','#0284c7','#65a30d','#db2777'];
+
+// ── 示範資料（對應真實工作表欄位與值）──
+const SAMPLE = [
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'工具機',地區:'中區',所在縣市:'台中市',報名管道:'活動網站'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'電子資通訊',地區:'北區',所在縣市:'新北市',報名管道:'EDM'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已回填',看板狀態:'',產業別:'電子資通訊',地區:'北區',所在縣市:'桃園市',報名管道:'活動/研討會介紹'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'機械',地區:'北區',所在縣市:'臺北市',報名管道:'EDM'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'塑膠製品',地區:'中區',所在縣市:'台中市',報名管道:'EDM'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'塑膠製品',地區:'北區',所在縣市:'新北市',報名管道:'EDM'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'食品',地區:'中區',所在縣市:'台中市',報名管道:'EDM'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'工具機',地區:'中區',所在縣市:'台中市',報名管道:'台中辦事處'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'電子資通訊',地區:'南區',所在縣市:'高雄市',報名管道:'台南辦事處'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'機械',地區:'北區',所在縣市:'台北市',報名管道:'活動網站'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已回填',看板狀態:'',產業別:'塑膠製品',地區:'南區',所在縣市:'台南市',報名管道:'台南辦事處'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'醫療',地區:'北區',所在縣市:'桃園市',報名管道:'桃園辦事處'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'工具機',地區:'北區',所在縣市:'桃園市',報名管道:'活動網站'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'扣件',地區:'南區',所在縣市:'高雄市',報名管道:'高雄辦事處'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已回填',看板狀態:'製作中',產業別:'工具機',地區:'中區',所在縣市:'臺中市',報名管道:'台中辦事處'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'機械',地區:'中區',所在縣市:'彰化縣',報名管道:'台中辦事處'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已回填',看板狀態:'製作中',產業別:'工具機',地區:'中區',所在縣市:'臺中市',報名管道:'活動網站'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'機械',地區:'中區',所在縣市:'臺中市',報名管道:'活動網站'},
+  {繳費狀態:'已繳費',調查問卷寄送:'',看板狀態:'',產業別:'塑膠製品',地區:'北區',所在縣市:'桃園市',報名管道:'桃園辦事處'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'工具機',地區:'中區',所在縣市:'臺中市',報名管道:'台中辦事處'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'金屬製品',地區:'中區',所在縣市:'彰化縣',報名管道:'台中辦事處'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'塑膠製品',地區:'南區',所在縣市:'屏東縣',報名管道:'高雄辦事處'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'電子資通訊',地區:'北區',所在縣市:'新北市',報名管道:'活動網站'},
+  {繳費狀態:'已繳費',調查問卷寄送:'已調查',看板狀態:'',產業別:'扣件',地區:'北區',所在縣市:'桃園市',報名管道:'桃園辦事處'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'',地區:'',所在縣市:'',報名管道:''},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'機械',地區:'北區',所在縣市:'新北市',報名管道:'活動/研討會介紹'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'扣件',地區:'南區',所在縣市:'高雄市',報名管道:'高雄辦事處'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'機械',地區:'北區',所在縣市:'桃園市',報名管道:'桃園辦事處'},
+  {繳費狀態:'待繳費',調查問卷寄送:'',看板狀態:'',產業別:'汽車零配件',地區:'中區',所在縣市:'台中市',報名管道:'活動/研討會介紹'},
+];
+
+function parseCSV(txt) {
+  const lines = txt.trim().split('\n');
+  if (lines.length < 2) return [];
+  const hdrs = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+  return lines.slice(1).map(line => {
+    const vals = []; let cur = '', inQ = false;
+    for (const c of line) {
+      if (c === '"') inQ = !inQ;
+      else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    hdrs.forEach((h, i) => obj[h] = (vals[i]||'').replace(/"/g,''));
+    return obj;
+  }).filter(r => Object.values(r).some(v => v));
+}
+
+function stats(rows) {
+  const total = rows.length;
+
+  // 已繳費
+  const paid = rows.filter(r => (r['繳費狀態']||'').includes('已繳費')).length;
+
+  // 問卷寄出：欄位有值（非空）即代表已寄送
+  const surveySent = rows.filter(r => (r['調查問卷寄送']||'').trim() !== '').length;
+
+  // 已回填：欄位值為「已回填」（不含「已調查」——已調查是已寄出但廠商尚未回填）
+  const filled = rows.filter(r => (r['調查問卷寄送']||'').includes('已回填')).length;
+
+  // 製作中 / 已完成
+  const making = rows.filter(r => (r['看板狀態']||'').includes('製作中')).length;
+  const done   = rows.filter(r => (r['看板狀態']||'').includes('已完成')).length;
+
+  const industries = {}, channels = {}, regions = {};
+  rows.forEach(r => {
+    const ind = (r['產業別']||'').trim() || '未填寫';
+    industries[ind] = (industries[ind]||0) + 1;
+    const ch = (r['報名管道']||'').trim() || '未填寫';
+    channels[ch] = (channels[ch]||0) + 1;
+    let reg = (r['地區']||'').trim();
+    if (!reg) {
+      const city = (r['所在縣市']||'').trim();
+      if (['台北','臺北','新北','基隆','桃園'].some(c=>city.includes(c))) reg='北區';
+      else if (['新竹','苗栗'].some(c=>city.includes(c))) reg='竹苗';
+      else if (['台中','臺中','彰化','南投'].some(c=>city.includes(c))) reg='中區';
+      else if (['嘉義','台南','臺南'].some(c=>city.includes(c))) reg='南區';
+      else if (['高雄','屏東'].some(c=>city.includes(c))) reg='高雄';
+      else if (city) reg='其他';
+    }
+    if (reg) regions[reg] = (regions[reg]||0) + 1;
+  });
+
+  return {total,paid,surveySent,filled,making,done,industries,channels,regions};
+}
+
+function pct(a, b) { return b ? Math.round(a/b*100)+'%' : '—'; }
+
+function renderBars(id, data) {
+  const sorted = Object.entries(data).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const max = sorted[0]?.[1]||1;
+  document.getElementById(id).innerHTML = sorted.map(([name,count],i) => `
+    <div class="bar-item">
+      <div class="bar-row"><span class="bar-name">${name}</span><span class="bar-val">${count} 家</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${count/max*100}%;background:${CLRS[i%CLRS.length]}"></div></div>
+    </div>`).join('');
+}
+
+function render(rows) {
+  const s = stats(rows);
+  const {total,paid,surveySent,filled,making,done} = s;
+
+  // hero（以已繳費家數為目標基準）
+  document.getElementById('hN').textContent = paid;
+  document.getElementById('hR').textContent = Math.max(0,300-paid);
+  const p = Math.round(paid/300*100);
+  document.getElementById('hP').textContent = p+'%';
+  setTimeout(() => document.getElementById('hPB').style.width = Math.min(100,p)+'%', 80);
+
+  // milestones
+  document.getElementById('mstones').innerHTML = [[75,'Q1'],[150,'中期'],[225,'Q3'],[300,'年度']].map(([v,lb])=>{
+    const ok = paid>=v;
+    return `<div class="ms"><div class="ms-dot" style="background:${ok?'var(--green)':'var(--border2)'}"></div><span style="color:${ok?'var(--green)':'var(--dim)'}">${lb} ${v}</span></div>`;
+  }).join('');
+
+  // pipeline
+  [total,paid,surveySent,filled,making,done].forEach((v,i) => {
+    document.getElementById('n'+(i+1)).textContent = v;
+    const pp = Math.round(v/300*100);
+    setTimeout(() => document.getElementById('b'+(i+1)).style.width = pp+'%', 150);
+  });
+
+  renderBars('indBars', s.industries);
+  renderBars('chBars',  s.channels);
+
+  // region
+  const rOrder = ['北區','竹苗','中區','南區','高雄','其他'];
+  const allR = [...new Set([...rOrder,...Object.keys(s.regions)])].filter(r=>s.regions[r]);
+  const rMax = Math.max(...allR.map(r=>s.regions[r]||0),1);
+  document.getElementById('rgrid').innerHTML = allR.map(r=>`
+    <div class="ri">
+      <div class="ri-name">${r}</div>
+      <div class="ri-num">${s.regions[r]||0}</div>
+      <div class="ri-bar"><div class="ri-fill" style="width:${(s.regions[r]||0)/rMax*100}%"></div></div>
+    </div>`).join('');
+
+  // timestamp
+  const now = new Date();
+  const ts = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 更新`;
+  document.getElementById('ts').textContent = ts;
+  document.getElementById('ftxt').textContent = `共 ${total} 家廠商 · 年度目標 300 家`;
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('dash').style.display = 'block';
+}
+
+function loadSample() { render(SAMPLE); closeModal(); }
+function openModal()  { document.getElementById('modalBg').classList.add('open'); }
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+document.getElementById('modalBg').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+
+function handleFile(file) {
+  if (!file) return;
+  document.getElementById('upStat').textContent = '讀取中：'+file.name;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    // try UTF-8 first, then BIG5
+    let rows = parseCSV(ev.target.result);
+    if (!rows.length) { document.getElementById('upStat').textContent = '⚠ 無法解析，請確認為 CSV'; return; }
+    render(rows);
+    document.getElementById('upStat').textContent = '✓ 已載入 '+rows.length+' 筆';
+    setTimeout(closeModal, 700);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+document.getElementById('csvInput').addEventListener('change', e => handleFile(e.target.files[0]));
+const dz = document.getElementById('drop');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); handleFile(e.dataTransfer.files[0]); });
+
+loadSample();
+</script>
+</body>
+</html>
