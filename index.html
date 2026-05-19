@@ -3,232 +3,301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>115年企業進出口數據看板達成率追蹤</title>
+<title>115年企業進出口數據看板 — 專案追蹤儀表板</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #F5F4F0;
-    --surface: #FFFFFF;
-    --border: #E2E0DA;
-    --border-strong: #C8C5BD;
-    --text-primary: #1A1916;
-    --text-secondary: #6B6860;
-    --text-muted: #A8A59E;
-    --blue: #1A5FBF;
-    --blue-light: #E8F0FB;
-    --red: #C0392B;
-    --amber: #B85C00;
-    --green: #2D6A2D;
-    --mono: 'DM Mono', monospace;
-    --sans: 'Noto Sans TC', sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--sans); background: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 40px 24px 80px; }
-  .container { max-width: 860px; margin: 0 auto; }
+:root{--bg:#F5F4F0;--surface:#FFF;--border:#E2E0DA;--border-s:#C8C5BD;--txt:#1A1916;--txt2:#6B6860;--txt3:#A8A59E;--blue:#1A5FBF;--blue-l:#E8F0FB;--red:#C0392B;--amber:#B85C00;--green:#2D6A2D;--teal:#0E7C6B;--purple:#6B3FA0;--mono:'DM Mono',monospace;--sans:'Noto Sans TC',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh;padding:32px 20px 60px}
+.container{max-width:940px;margin:0 auto}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--blue);background:var(--blue-l);padding:2px 7px;border-radius:3px;display:inline-block;margin-bottom:6px}
+.header h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:3px}
+.header-sub{font-size:12px;color:var(--txt2)}
+.updated{font-family:var(--mono);font-size:10px;color:var(--txt3);text-align:right;line-height:1.6;white-space:nowrap}
 
-  .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
-  .product-tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--blue); background: var(--blue-light); padding: 3px 8px; border-radius: 3px; display: inline-block; margin-bottom: 8px; }
-  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
-  .header-sub { font-size: 13px; color: var(--text-secondary); }
-  .updated-at { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-align: right; line-height: 1.6; white-space: nowrap; }
+/* Top cards */
+.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
+.card-l{font-size:11px;color:var(--txt3);margin-bottom:6px}
+.card-v{font-family:var(--mono);font-size:28px;font-weight:500;line-height:1;margin-bottom:3px}
+.card-s{font-size:11px;color:var(--txt3)}
 
-  .cards { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 24px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-  .card-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-  .card-value { font-family: var(--mono); font-size: 30px; font-weight: 500; line-height: 1; margin-bottom: 4px; }
-  .card-sub { font-size: 13px; color: var(--text-muted); }
+/* Tabs */
+.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border);flex-wrap:wrap}
+.tab{padding:9px 18px;font-size:13px;font-weight:500;color:var(--txt3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .15s}
+.tab:hover{color:var(--txt2)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.pane{display:none}.pane.active{display:block}
 
-  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th { font-size: 12px; font-weight: 500; color: var(--text-muted); text-align: right; padding: 10px 14px; border-bottom: 1px solid var(--border); letter-spacing: 0.04em; background: var(--bg); white-space: nowrap; }
-  th:first-child { text-align: left; }
-  td { padding: 11px 14px; border-bottom: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 15px; }
-  td:first-child { text-align: left; font-family: var(--sans); font-weight: 500; font-size: 15px; }
-  tr:last-child td { border-bottom: none; }
-  .row-now td { background: #FAFAF8; }
-  .total-row td { border-top: 2px solid var(--border-strong); font-weight: 500; background: var(--bg); }
+/* Section */
+.sec{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px}
+.sec-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:16px}
 
-  .badge-now { display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 3px; font-weight: 500; margin-left: 6px; background: var(--blue-light); color: var(--blue); font-family: var(--sans); vertical-align: middle; }
-  .muted { color: var(--text-muted); font-family: var(--mono); }
-  .pct-red { color: var(--red); }
-  .pct-amber { color: var(--amber); }
-  .pct-green { color: var(--green); }
-  .bar-wrap { display: inline-block; width: 48px; height: 4px; background: var(--border); border-radius: 2px; vertical-align: middle; margin-left: 6px; overflow: hidden; }
-  .bar { height: 4px; border-radius: 2px; display: inline-block; }
+/* ── Tab 1: Progress items ── */
+.prog-items{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.prog-item{flex:1;min-width:80px;background:var(--bg);border-radius:8px;padding:12px 14px;text-align:center;border:1px solid var(--border)}
+.prog-item-v{font-family:var(--mono);font-size:24px;font-weight:500;line-height:1;margin-bottom:4px}
+.prog-item-l{font-size:11px;color:var(--txt2)}
+.prog-item-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.prog-bar{height:10px;border-radius:5px;display:flex;overflow:hidden;background:var(--bg);border:1px solid var(--border)}
+.prog-seg{height:100%;transition:width .5s ease}
 
-  .status { text-align: center; padding: 60px 0; font-size: 14px; color: var(--text-muted); font-family: var(--mono); }
-  .status.error { color: var(--red); }
-  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .refresh-btn { margin-top: 12px; font-size: 12px; font-family: var(--mono); color: var(--blue); cursor: pointer; background: none; border: 1px solid var(--border); border-radius: 4px; padding: 4px 10px; display: inline-block; }
-  .refresh-btn:hover { background: var(--blue-light); }
+/* ── Tab 2: Monthly table ── */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11px;font-weight:500;color:var(--txt3);text-align:right;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:14px}
+td:first-child{text-align:left;font-family:var(--sans);font-weight:500}
+tr:last-child td{border-bottom:none}
+.row-now td{background:#FAFAF8}
+.total-row td{border-top:2px solid var(--border-s);font-weight:500;background:var(--bg)}
+.badge-now{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:500;margin-left:5px;background:var(--blue-l);color:var(--blue);font-family:var(--sans);vertical-align:middle}
+.muted{color:var(--txt3)}
+.pct-red{color:var(--red)}.pct-amber{color:var(--amber)}.pct-green{color:var(--green)}
+.bar-w{display:inline-block;width:52px;height:5px;background:var(--border);border-radius:3px;vertical-align:middle;margin-left:6px;overflow:hidden}
+.bar-f{height:5px;border-radius:3px;display:block;min-width:3px}
 
-  @media (max-width: 600px) {
-    .cards { grid-template-columns: repeat(2, 1fr); }
-    .header { flex-direction: column; gap: 8px; }
-    .updated-at { text-align: left; }
-  }
+/* ── Tab 3: Analysis charts ── */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px}
+.chart-box-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:14px}
+.hbar-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.hbar-row:last-child{margin-bottom:0}
+.hbar-name{font-size:12px;color:var(--txt);width:90px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar-track{flex:1;height:20px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--border)}
+.hbar-fill{height:100%;border-radius:4px;transition:width .5s ease;min-width:4px}
+.hbar-val{font-family:var(--mono);font-size:12px;color:var(--txt2);width:48px;flex-shrink:0;text-align:right}
+
+/* ── Tab 4: Office cards (horizontal bar + 3 stats) ── */
+.office-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.office-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px;transition:all .25s ease}
+.office-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(0,0,0,.1)}
+.off-name{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-weight:600;color:var(--txt);margin-bottom:12px}
+.off-pct{font-family:var(--mono);font-size:13px;font-weight:500}
+.off-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.off-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue) 0%,var(--teal) 100%);transition:width .8s cubic-bezier(.22,1,.36,1)}
+.off-bar-fill.met{background:var(--green)}
+.off-stats{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:0}
+.off-stat{text-align:center}
+.off-stat-n{font-family:var(--mono);font-size:22px;font-weight:600;line-height:1;letter-spacing:-.02em}
+.off-stat-n.paid{color:var(--green)}
+.off-stat-l{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--txt3);margin-top:5px}
+.off-divider{width:1px;height:24px;background:var(--border)}
+
+/* Loading */
+.status{text-align:center;padding:50px 0;font-size:13px;color:var(--txt3);font-family:var(--mono)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.retry-btn{margin-top:10px;font-size:11px;font-family:var(--mono);color:var(--blue);cursor:pointer;background:none;border:1px solid var(--border);border-radius:4px;padding:3px 10px}
+
+@media(max-width:700px){
+  .cards{grid-template-columns:repeat(3,1fr)}
+  .chart-grid{grid-template-columns:1fr}
+  .office-grid{grid-template-columns:1fr}
+  .header{flex-direction:column;gap:6px}
+  .prog-items{flex-wrap:wrap}
+  body{padding:16px 12px 40px}
+}
+@media(max-width:480px){.cards{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 <div class="container">
-
   <div class="header">
     <div>
-      <div class="product-tag">115年韌性專案</div>
+      <div class="tag">115年韌性專案</div>
       <h1>企業進出口數據看板</h1>
-      <div class="header-sub">訂閱達成率儀表板 · NT$999／年 · 年度目標 300 席</div>
+      <div class="header-sub">專案追蹤儀表板 · 年度目標 300 家</div>
     </div>
-    <div class="updated-at" id="updated-at">載入中…</div>
+    <div class="updated" id="updated">載入中…</div>
   </div>
-
   <div class="cards" id="cards"></div>
-
-  <div class="table-wrap">
-    <div class="status" id="status"><span class="spinner"></span>從 Google Sheets 讀取資料中…</div>
-    <table id="main-table" style="display:none;">
-      <thead>
-        <tr>
-          <th>月份</th>
-          <th>月度目標</th>
-          <th>月度實績</th>
-          <th>月度達成率</th>
-          <th>年度累計目標</th>
-          <th>年度累計實績</th>
-          <th>年度達成率</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+  <div class="tabs" id="tabNav">
+    <div class="tab active" data-tab="0">各階段進度</div>
+    <div class="tab" data-tab="1">月度達成率</div>
+    <div class="tab" data-tab="2">廠商分析</div>
   </div>
-
+  <div id="pane0" class="pane active"></div>
+  <div id="pane1" class="pane"></div>
+  <div id="pane2" class="pane"></div>
+  <div class="status" id="status"><span class="spinner"></span>從 Google Sheets 讀取資料中…</div>
 </div>
 <script>
-// ══════════════════════════════════════════
-//  設定區：每月只需更新 CURRENT_MONTH_LABEL
-// ══════════════════════════════════════════
-const SHEET_ID = '1kUFvr6J-WIgaSCyU0jt16-jmuXq3edWn1LAJoQ0zaUo';
-const YEAR_TOTAL = 300;
-const PROJECT_MONTHS = ['4月','5月','6月','7月','8月','9月','10月','11月'];
-const _m = new Date().getMonth() + 1;
-const CURRENT_MONTH_LABEL = PROJECT_MONTHS.includes(_m + '月') ? _m + '月' : PROJECT_MONTHS[PROJECT_MONTHS.length - 1];
-// ══════════════════════════════════════════
+const API='https://script.google.com/macros/s/AKfycbwHcQ0iHXKKh6mXioPveCcdqD_KhUTA_TqzeELYRg37kQX5nsFYbWpHkV3MyRb70o5w/exec';
+const YEAR_TOTAL=300;
+const PM=['4月','5月','6月','7月','8月','9月','10月','11月'];
+const _m=new Date().getMonth()+1;
+const CUR=PM.includes(_m+'月')?_m+'月':PM[PM.length-1];
+const PAL={
+  payment:{已繳費:'#2D6A2D',待繳費:'#B85C00'},
+  survey:{已回填:'#2D6A2D',已調查:'#1A5FBF',待調查:'#C8C5BD'},
+  dashboard:{已交付:'#2D6A2D',已完成:'#0E7C6B',製作中:'#1A5FBF',待確認:'#B85C00',退回修改:'#C0392B'}
+};
+const ACOL=['#1A5FBF','#2D6A2D','#B85C00','#0E7C6B','#6B3FA0','#C0392B','#4A90D9','#5CA05C','#D4872C','#3DB8A0','#8B6BBF','#E06050'];
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbxkCGwoOsslEAq-8bXnxpKToga56iZ13Es3nvtjPxjqlf2G-KWSKAZfezSa9UMIvvgk/exec';
+document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('pane'+t.dataset.tab).classList.add('active');
+})});
 
-function colorInfo(pct) {
-  if (pct === null) return { cls: 'muted', bar: '#C8C5BD' };
-  if (pct < 50)    return { cls: 'pct-red',   bar: '#C0392B' };
-  if (pct < 80)    return { cls: 'pct-amber', bar: '#B85C00' };
-  return               { cls: 'pct-green',  bar: '#2D6A2D' };
+function pc(p){if(p==null)return{c:'muted',b:'#C8C5BD'};if(p<50)return{c:'pct-red',b:'#C0392B'};if(p<80)return{c:'pct-amber',b:'#B85C00'};return{c:'pct-green',b:'#2D6A2D'}}
+function pb(p,co){if(p==null)return'<span class="muted">—</span>';return'<span class="'+co.c+'">'+p+'%</span><span class="bar-w"><span class="bar-f" style="width:'+Math.max(p,3)+'%;background:'+co.b+'"></span></span>'}
+function pad(n){return String(n).padStart(2,'0')}
+
+function renderCards(d){
+  var c=d.cards;
+  [{l:'總報名數',v:c.totalApproved,s:'審核通過',cl:''},{l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},{l:'待繳費',v:c.unpaid,s:'家',cl:'pct-amber'},{l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},{l:'已交付',v:c.delivered,s:'看板',cl:'pct-green'}].forEach(function(){});
+  document.getElementById('cards').innerHTML=[
+    {l:'總報名數',v:c.totalApproved,s:'審核通過',cl:''},{l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},{l:'待繳費',v:c.unpaid,s:'家',cl:'pct-amber'},{l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},{l:'已交付',v:c.delivered,s:'看板',cl:'pct-green'}
+  ].map(i=>'<div class="card"><div class="card-l">'+i.l+'</div><div class="card-v '+i.cl+'">'+i.v+'</div><div class="card-s">'+i.s+'</div></div>').join('');
 }
 
-function pctBar(pct, c) {
-  if (pct === null) return '<span class="muted">—</span>';
-  return `<span class="${c.cls}">${pct}%</span><span class="bar-wrap"><span class="bar" style="width:${Math.min(pct,100)}%;background:${c.bar};"></span></span>`;
-}
+/* ── Tab 0: Progress ── */
+function renderProgress(title, data, palette, container){
+  var keys=Object.keys(palette);
+  var total=0; keys.forEach(k=>{total+=(data[k]||0)});
+  if(total===0) total=1;
 
-async function fetchData() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
-  return data.map(r => ({
-    month:  r.month,
-    target: Number(r.target),
-    actual: r.actual !== null && r.actual !== '' ? Number(r.actual) : null,
-  })).filter(r => r.month);
-}
-
-function render(data) {
-  let cumTarget = 0, cumActual = 0;
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = '';
-
-  const pad = n => String(n).padStart(2,'0');
-  const now = new Date();
-  const nowStr = `${now.getFullYear()}/${pad(now.getMonth()+1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  document.getElementById('updated-at').innerHTML = `資料讀取時間<br>${nowStr}`;
-
-  data.forEach(row => {
-    cumTarget += row.target;
-    if (row.actual !== null) cumActual += row.actual;
-
-    const monthPct = row.actual !== null ? Math.round(row.actual / row.target * 100) : null;
-    const yearPct  = row.actual !== null ? Math.round(cumActual / YEAR_TOTAL * 100) : null;
-    const mc = colorInfo(monthPct), yc = colorInfo(yearPct);
-    const isNow    = row.month === CURRENT_MONTH_LABEL;
-    const isFuture = row.actual === null;
-
-    const tr = document.createElement('tr');
-    if (isNow) tr.className = 'row-now';
-
-    tr.innerHTML = `
-      <td>${row.month}${isNow ? '<span class="badge-now">本月</span>' : ''}</td>
-      <td>${isFuture ? `<span class="muted">${row.target}</span>` : row.target}</td>
-      <td>${row.actual !== null ? row.actual : '<span class="muted">—</span>'}</td>
-      <td>${pctBar(monthPct, mc)}</td>
-      <td>${isFuture ? `<span class="muted">${cumTarget}</span>` : cumTarget}</td>
-      <td>${yearPct !== null ? cumActual : '<span class="muted">—</span>'}</td>
-      <td>${pctBar(yearPct, yc)}</td>
-    `;
-    tbody.appendChild(tr);
+  var itemsHtml='<div class="prog-items">';
+  keys.forEach(k=>{
+    var v=data[k]||0;
+    var pct=Math.round(v/total*100);
+    itemsHtml+='<div class="prog-item"><div class="prog-item-v" style="color:'+palette[k]+'">'+v+'</div><div class="prog-item-l"><span class="prog-item-dot" style="background:'+palette[k]+'"></span>'+k+'</div></div>';
   });
+  itemsHtml+='</div>';
 
-  const totalActual = data.filter(r => r.actual !== null).reduce((s, r) => s + r.actual, 0);
-  const totalPct = Math.round(totalActual / YEAR_TOTAL * 100);
-  const tc = colorInfo(totalPct);
-  const totalTr = document.createElement('tr');
-  totalTr.className = 'total-row';
-  totalTr.innerHTML = `
-    <td>年度合計</td>
-    <td>${YEAR_TOTAL}</td>
-    <td>${totalActual}</td>
-    <td>${pctBar(totalPct, tc)}</td>
-    <td>—</td><td>—</td><td>—</td>
-  `;
-  tbody.appendChild(totalTr);
+  var barHtml='<div class="prog-bar">';
+  keys.forEach(k=>{
+    var v=data[k]||0;
+    var pct=(v/total*100);
+    if(v>0) barHtml+='<div class="prog-seg" style="width:'+pct+'%;background:'+palette[k]+'"></div>';
+  });
+  barHtml+='</div>';
 
-  renderCards(data, totalActual, totalPct);
-  document.getElementById('status').style.display = 'none';
-  document.getElementById('main-table').style.display = 'table';
+  container.innerHTML=itemsHtml+barHtml;
 }
 
-function renderCards(data, totalActual, totalPct) {
-  const nowRow = data.find(r => r.month === CURRENT_MONTH_LABEL);
-  const nowActual = nowRow?.actual ?? 0;
-  const nowTarget = nowRow?.target ?? 1;
-  const nowPct = Math.round(nowActual / nowTarget * 100);
-  const remaining = YEAR_TOTAL - totalActual;
-
-  document.getElementById('cards').innerHTML = [
-    { label: '本月達成率', value: nowPct + '%',        sub: `${nowActual} / ${nowTarget} 家`, cls: colorInfo(nowPct).cls },
-    { label: '年度進度',   value: totalPct + '%',       sub: `累計 ${totalActual} 家`,        cls: colorInfo(totalPct).cls },
-    { label: '年度目標',   value: YEAR_TOTAL + ' 家',   sub: '2026 全年',                     cls: '' },
-    { label: '尚需達成',   value: remaining + ' 家',    sub: '距年度目標',                    cls: remaining > 0 ? 'pct-amber' : 'pct-green' },
-  ].map(c => `
-    <div class="card">
-      <div class="card-label">${c.label}</div>
-      <div class="card-value ${c.cls}">${c.value}</div>
-      <div class="card-sub">${c.sub}</div>
-    </div>
-  `).join('');
+function renderTab0(d){
+  var html='<div class="sec"><div class="sec-title">繳費狀態</div><div id="p-pay"></div></div>';
+  html+='<div class="sec"><div class="sec-title">需求調查進度</div><div id="p-srv"></div></div>';
+  html+='<div class="sec"><div class="sec-title">看板製作進度</div><div id="p-dsh"></div></div>';
+  document.getElementById('pane0').innerHTML=html;
+  renderProgress('',d.payment,PAL.payment,document.getElementById('p-pay'));
+  renderProgress('',d.survey,PAL.survey,document.getElementById('p-srv'));
+  renderProgress('',d.dashboard,PAL.dashboard,document.getElementById('p-dsh'));
 }
 
-async function init() {
-  document.getElementById('status').style.display = 'block';
-  document.getElementById('status').className = 'status';
-  document.getElementById('status').innerHTML = '<span class="spinner"></span>從 Google Sheets 讀取資料中…';
-  document.getElementById('main-table').style.display = 'none';
-  try {
-    const data = await fetchData();
-    render(data);
-  } catch(e) {
-    document.getElementById('status').className = 'status error';
-    document.getElementById('status').innerHTML = `無法讀取資料，請確認 Google Sheets 已設為「知道連結的家可檢視」。<br><button class="refresh-btn" onclick="init()">重新載入</button>`;
+/* ── Tab 1: Monthly ── */
+function renderTab1(d){
+  var m=d.monthly||[];
+  if(!m.length){document.getElementById('pane1').innerHTML='<div class="sec"><p class="muted">無月度資料</p></div>';return}
+  var cT=0,cA=0,rows='';
+  m.forEach(r=>{
+    cT+=r.target; if(r.actual!=null) cA+=r.actual;
+    var mp=r.actual!=null?Math.round(r.actual/r.target*100):null;
+    var yp=r.actual!=null?Math.round(cA/YEAR_TOTAL*100):null;
+    var mc=pc(mp),yc=pc(yp),isN=r.month===CUR,isF=r.actual==null;
+    rows+='<tr'+(isN?' class="row-now"':'')+'><td>'+r.month+(isN?'<span class="badge-now">本月</span>':'')+'</td>';
+    rows+='<td>'+(isF?'<span class="muted">'+r.target+'</span>':r.target)+'</td>';
+    rows+='<td>'+(r.actual!=null?r.actual:'<span class="muted">—</span>')+'</td>';
+    rows+='<td>'+pb(mp,mc)+'</td>';
+    rows+='<td>'+(isF?'<span class="muted">'+cT+'</span>':cT)+'</td>';
+    rows+='<td>'+(yp!=null?cA:'<span class="muted">—</span>')+'</td>';
+    rows+='<td>'+pb(yp,yc)+'</td></tr>';
+  });
+  var tA=m.filter(r=>r.actual!=null).reduce((s,r)=>s+r.actual,0);
+  var tP=Math.round(tA/YEAR_TOTAL*100),tc=pc(tP);
+  rows+='<tr class="total-row"><td>年度合計</td><td>'+YEAR_TOTAL+'</td><td>'+tA+'</td><td>'+pb(tP,tc)+'</td><td>—</td><td>—</td><td>—</td></tr>';
+  document.getElementById('pane1').innerHTML='<div class="sec" style="padding:0;overflow:auto"><table><thead><tr><th>月份</th><th>月度目標</th><th>月度實績</th><th>月度達成率</th><th>年度累計目標</th><th>年度累計實績</th><th>年度達成率</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+/* ── Tab 2: Analysis ── */
+function hBar(data,container,sortByKey){
+  var keys=Object.keys(data).filter(k=>data[k]>0);
+  if(!keys.length){container.innerHTML='<p class="muted" style="font-size:12px">無資料</p>';return}
+  if(sortByKey) ; // already ordered
+  else keys.sort((a,b)=>data[b]-data[a]);
+  var max=Math.max(...keys.map(k=>data[k]))||1;
+  container.innerHTML=keys.map((k,i)=>{
+    var v=data[k],pct=Math.round(v/max*100),col=ACOL[i%ACOL.length];
+    return'<div class="hbar-row"><div class="hbar-name" title="'+k+'">'+k+'</div><div class="hbar-track"><div class="hbar-fill" style="width:'+pct+'%;background:'+col+'"></div></div><div class="hbar-val">'+v+' 家</div></div>';
+  }).join('');
+}
+
+function renderTab2(d){
+  // Capital: order by size (large → small)
+  var capOrder=['3億以上','1億-3億','3000萬-1億','500萬-3000萬','500萬以下'];
+  var capOrdered={};
+  capOrder.forEach(k=>{if((d.capital||{})[k]) capOrdered[k]=d.capital[k]});
+
+  var html='<div class="chart-grid">';
+  html+='<div class="chart-box"><div class="chart-box-title">資本額分佈</div><div id="c-cap"></div></div>';
+  html+='<div class="chart-box"><div class="chart-box-title">地區分佈</div><div id="c-reg"></div></div>';
+  html+='<div class="chart-box"><div class="chart-box-title">縣市分佈</div><div id="c-city"></div></div>';
+  html+='<div class="chart-box"><div class="chart-box-title">產業別分佈</div><div id="c-ind"></div></div>';
+  html+='</div>';
+  document.getElementById('pane2').innerHTML=html;
+  hBar(capOrdered,document.getElementById('c-cap'),true);
+  hBar(d.region||{},document.getElementById('c-reg'));
+  hBar(d.city||{},document.getElementById('c-city'));
+  hBar(d.industry||{},document.getElementById('c-ind'));
+}
+
+/* ── Tab 3: Office cards with ring ── */
+function ring(pct,color,size){
+  var r=size/2-6,c=2*Math.PI*r,fill=c*pct/100,gap=c-fill;
+  return'<div class="ring-wrap" style="width:'+size+'px;height:'+size+'px">'+
+    '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+
+    '<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="#E8E6E0" stroke-width="7"/>'+
+    '<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+fill+' '+gap+'"/>'+
+    '</svg><div class="ring-pct" style="color:'+color+'">'+pct+'%</div></div>';
+}
+
+/* ── Tab 3: Office KPI cards ── */
+function renderTab3(d){
+  var offices=d.office||[];
+  if(!offices.length){document.getElementById('pane3').innerHTML='<div class="sec"><p class="muted">無辦事處資料</p></div>';return}
+
+  var html='<div class="office-grid">';
+  offices.forEach(o=>{
+    var pct=o.kpi>0?Math.round(o.paid/o.kpi*100):0;
+    var met=pct>=100;
+    var pctColor=pct>=100?'var(--green)':pct>=50?'var(--amber)':'var(--red)';
+    html+='<div class="office-card">';
+    html+='<div class="off-name"><span>'+o.name+'</span><span class="off-pct" style="color:'+pctColor+'">'+pct+'%</span></div>';
+    html+='<div class="off-bar"><div class="off-bar-fill'+(met?' met':'')+'" style="width:'+Math.min(pct,100)+'%"></div></div>';
+    html+='<div class="off-stats">';
+    html+='<div class="off-stat"><div class="off-stat-n">'+o.total+'</div><div class="off-stat-l">報名</div></div>';
+    html+='<div class="off-divider"></div>';
+    html+='<div class="off-stat"><div class="off-stat-n paid">'+o.paid+'</div><div class="off-stat-l">已繳費</div></div>';
+    html+='<div class="off-divider"></div>';
+    html+='<div class="off-stat"><div class="off-stat-n">'+o.kpi+'</div><div class="off-stat-l">目標</div></div>';
+    html+='</div></div>';
+  });
+  html+='</div>';
+  document.getElementById('pane3').innerHTML=html;
+}
+
+async function init(){
+  document.getElementById('status').style.display='block';
+  document.getElementById('status').innerHTML='<span class="spinner"></span>從 Google Sheets 讀取資料中…';
+  try{
+    var res=await fetch(API);var d=await res.json();
+    document.getElementById('status').style.display='none';
+    var now=new Date();
+    document.getElementById('updated').innerHTML='資料讀取時間<br>'+now.getFullYear()+'/'+pad(now.getMonth()+1)+'/'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
+    renderCards(d);renderTab0(d);renderTab1(d);renderTab2(d);
+  }catch(e){
+    document.getElementById('status').className='status';
+    document.getElementById('status').style.color='var(--red)';
+    document.getElementById('status').innerHTML='無法讀取資料，請確認 Apps Script 已正確部署。<br><button class="retry-btn" onclick="init()">重新載入</button>';
   }
 }
-
 init();
-setInterval(init, 5 * 60 * 1000); // 每5分鐘自動更新
+setInterval(init,5*60*1000);
 </script>
 </body>
 </html>
