@@ -116,15 +116,15 @@ tr:last-child td{border-bottom:none}
   <div class="tabs" id="tabNav">
     <div class="tab active" data-tab="0">各階段進度</div>
     <div class="tab" data-tab="1">月度達成率</div>
-    <div class="tab" data-tab="2">報名廠商分析</div>
+    <div class="tab" data-tab="2">廠商分析</div>
   </div>
   <div id="pane0" class="pane active"></div>
   <div id="pane1" class="pane"></div>
   <div id="pane2" class="pane"></div>
-  <div class="status" id="status"><span class="spinner"></span>資料載入中…</div>
+  <div class="status" id="status"><span class="spinner"></span>從 Google Sheets 讀取資料中…</div>
 </div>
 <script>
-const API='https://script.google.com/macros/s/AKfycbzf5SQup4s--ApSfBB8lAlN35V8j2B-ra5K_7UP25ovt72r2aq_9ZHPcYNsMsqOioKY/exec';
+const API='https://script.google.com/macros/s/AKfycbwHcQ0iHXKKh6mXioPveCcdqD_KhUTA_TqzeELYRg37kQX5nsFYbWpHkV3MyRb70o5w/exec';
 const YEAR_TOTAL=300;
 const PM=['4月','5月','6月','7月','8月','9月','10月','11月'];
 const _m=new Date().getMonth()+1;
@@ -149,12 +149,9 @@ function pad(n){return String(n).padStart(2,'0')}
 
 function renderCards(d){
   var c=d.cards;
+  [{l:'總報名數',v:c.totalApproved,s:'審核通過',cl:''},{l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},{l:'待繳費',v:c.unpaid,s:'家',cl:'pct-amber'},{l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},{l:'已交付',v:c.delivered,s:'看板',cl:'pct-green'}].forEach(function(){});
   document.getElementById('cards').innerHTML=[
-    {l:'總報名數',v:c.totalRegistered,s:'全部',cl:''},
-    {l:'審核通過',v:c.totalApproved,s:'家',cl:''},
-    {l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},
-    {l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},
-    {l:'已交付',v:c.delivered,s:'看板',cl:'pct-green'}
+    {l:'總報名數',v:c.totalApproved,s:'審核通過',cl:''},{l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},{l:'待繳費',v:c.unpaid,s:'家',cl:'pct-amber'},{l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},{l:'已交付',v:c.delivered,s:'看板',cl:'pct-green'}
   ].map(i=>'<div class="card"><div class="card-l">'+i.l+'</div><div class="card-v '+i.cl+'">'+i.v+'</div><div class="card-s">'+i.s+'</div></div>').join('');
 }
 
@@ -286,7 +283,7 @@ function renderTab3(d){
 
 async function init(){
   document.getElementById('status').style.display='block';
-  document.getElementById('status').innerHTML='<span class="spinner"></span>資料載入中…';
+  document.getElementById('status').innerHTML='<span class="spinner"></span>從 Google Sheets 讀取資料中…';
   try{
     var res=await fetch(API);var d=await res.json();
     document.getElementById('status').style.display='none';
@@ -296,7 +293,7 @@ async function init(){
   }catch(e){
     document.getElementById('status').className='status';
     document.getElementById('status').style.color='var(--red)';
-    document.getElementById('status').innerHTML='資料載入失敗，請稍後再試。<br><button class="retry-btn" onclick="init()">重新載入</button>';
+    document.getElementById('status').innerHTML='無法讀取資料，請確認 Apps Script 已正確部署。<br><button class="retry-btn" onclick="init()">重新載入</button>';
   }
 }
 init();
