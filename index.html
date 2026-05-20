@@ -6,68 +6,68 @@
 <title>115年企業進出口數據看板 — 專案追蹤儀表板</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F5F4F0;--surface:#FFF;--border:#E2E0DA;--border-s:#C8C5BD;--txt:#1A1916;--txt2:#6B6860;--txt3:#A8A59E;--blue:#1A5FBF;--blue-l:#E8F0FB;--red:#C0392B;--amber:#B85C00;--green:#2D6A2D;--teal:#0E7C6B;--purple:#6B3FA0;--mono:'DM Mono',monospace;--sans:'Noto Sans TC',sans-serif}
+:root{--bg:#F5F4F0;--surface:#FFF;--border:#E2E0DA;--border-s:#C8C5BD;--txt:#1A1916;--txt2:#4A4843;--txt3:#7A776F;--blue:#1A5FBF;--blue-l:#E8F0FB;--red:#C0392B;--amber:#B85C00;--green:#2D6A2D;--teal:#0E7C6B;--purple:#6B3FA0;--mono:'DM Mono',monospace;--sans:'Noto Sans TC',sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh;padding:32px 20px 60px}
-.container{max-width:940px;margin:0 auto}
-.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
-.tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--blue);background:var(--blue-l);padding:2px 7px;border-radius:3px;display:inline-block;margin-bottom:6px}
-.header h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:3px}
-.header-sub{font-size:12px;color:var(--txt2)}
-.updated{font-family:var(--mono);font-size:10px;color:var(--txt3);text-align:right;line-height:1.6;white-space:nowrap}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);min-height:100vh;padding:40px 28px 80px}
+.container{max-width:1240px;margin:0 auto}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.tag{font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:var(--blue);background:var(--blue-l);padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:10px;font-weight:500}
+.header h1{font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.header-sub{font-size:15px;color:var(--txt2)}
+.updated{font-family:var(--mono);font-size:13px;color:var(--txt2);text-align:right;line-height:1.7;white-space:nowrap;font-weight:500}
 
 /* Top cards */
-.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:20px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
-.card-l{font-size:11px;color:var(--txt3);margin-bottom:6px}
-.card-v{font-family:var(--mono);font-size:28px;font-weight:500;line-height:1;margin-bottom:3px}
-.card-s{font-size:11px;color:var(--txt3)}
+.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:28px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px}
+.card-l{font-size:14px;color:var(--txt2);margin-bottom:10px;font-weight:500}
+.card-v{font-family:var(--mono);font-size:38px;font-weight:600;line-height:1;margin-bottom:6px;color:var(--txt)}
+.card-s{font-size:13px;color:var(--txt3)}
 
 /* Tabs */
-.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border);flex-wrap:wrap}
-.tab{padding:9px 18px;font-size:13px;font-weight:500;color:var(--txt3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .15s}
-.tab:hover{color:var(--txt2)}
+.tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid var(--border);flex-wrap:wrap}
+.tab{padding:12px 22px;font-size:16px;font-weight:600;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .15s}
+.tab:hover{color:var(--txt)}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 .pane{display:none}.pane.active{display:block}
 
 /* Section */
-.sec{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:14px}
-.sec-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:16px}
+.sec{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px 26px;margin-bottom:16px}
+.sec-title{font-size:17px;font-weight:600;color:var(--txt);margin-bottom:20px}
 
 /* ── Tab 1: Progress items ── */
-.prog-items{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.prog-item{flex:1;min-width:80px;background:var(--bg);border-radius:8px;padding:12px 14px;text-align:center;border:1px solid var(--border)}
-.prog-item-v{font-family:var(--mono);font-size:24px;font-weight:500;line-height:1;margin-bottom:4px}
-.prog-item-l{font-size:11px;color:var(--txt2)}
-.prog-item-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
-.prog-bar{height:10px;border-radius:5px;display:flex;overflow:hidden;background:var(--bg);border:1px solid var(--border)}
+.prog-items{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.prog-item{flex:1;min-width:100px;background:var(--bg);border-radius:10px;padding:16px 18px;text-align:center;border:1px solid var(--border)}
+.prog-item-v{font-family:var(--mono);font-size:32px;font-weight:600;line-height:1;margin-bottom:6px}
+.prog-item-l{font-size:14px;color:var(--txt);font-weight:500}
+.prog-item-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.prog-bar{height:14px;border-radius:7px;display:flex;overflow:hidden;background:var(--bg);border:1px solid var(--border)}
 .prog-seg{height:100%;transition:width .5s ease}
 
 /* ── Tab 2: Monthly table ── */
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{font-size:11px;font-weight:500;color:var(--txt3);text-align:right;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:16px}
+th{font-size:14px;font-weight:600;color:var(--txt2);text-align:right;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap}
 th:first-child{text-align:left}
-td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:14px}
-td:first-child{text-align:left;font-family:var(--sans);font-weight:500}
+td{padding:13px 16px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:16px;color:var(--txt)}
+td:first-child{text-align:left;font-family:var(--sans);font-weight:600;font-size:16px}
 tr:last-child td{border-bottom:none}
 .row-now td{background:#FAFAF8}
 .total-row td{border-top:2px solid var(--border-s);font-weight:500;background:var(--bg)}
-.badge-now{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:500;margin-left:5px;background:var(--blue-l);color:var(--blue);font-family:var(--sans);vertical-align:middle}
+.badge-now{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600;margin-left:7px;background:var(--blue-l);color:var(--blue);font-family:var(--sans);vertical-align:middle}
 .muted{color:var(--txt3)}
 .pct-red{color:var(--red)}.pct-amber{color:var(--amber)}.pct-green{color:var(--green)}
-.bar-w{display:inline-block;width:52px;height:5px;background:var(--border);border-radius:3px;vertical-align:middle;margin-left:6px;overflow:hidden}
-.bar-f{height:5px;border-radius:3px;display:block;min-width:3px}
+.bar-w{display:inline-block;width:64px;height:7px;background:var(--border);border-radius:4px;vertical-align:middle;margin-left:8px;overflow:hidden}
+.bar-f{height:7px;border-radius:4px;display:block;min-width:4px}
 
 /* ── Tab 3: Analysis charts ── */
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px}
-.chart-box-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:14px}
-.hbar-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px 24px}
+.chart-box-title{font-size:17px;font-weight:600;color:var(--txt);margin-bottom:18px}
+.hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:11px}
 .hbar-row:last-child{margin-bottom:0}
-.hbar-name{font-size:12px;color:var(--txt);width:90px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hbar-track{flex:1;height:20px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--border)}
-.hbar-fill{height:100%;border-radius:4px;transition:width .5s ease;min-width:4px}
-.hbar-val{font-family:var(--mono);font-size:12px;color:var(--txt2);width:48px;flex-shrink:0;text-align:right}
+.hbar-name{font-size:14px;color:var(--txt);width:110px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.hbar-track{flex:1;height:24px;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.hbar-fill{height:100%;border-radius:5px;transition:width .5s ease;min-width:5px}
+.hbar-val{font-family:var(--mono);font-size:14px;color:var(--txt);width:56px;flex-shrink:0;text-align:right;font-weight:600}
 
 /* ── Tab 4: Office cards (horizontal bar + 3 stats) ── */
 .office-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
@@ -86,20 +86,18 @@ tr:last-child td{border-bottom:none}
 .off-divider{width:1px;height:24px;background:var(--border)}
 
 /* Loading */
-.status{text-align:center;padding:50px 0;font-size:13px;color:var(--txt3);font-family:var(--mono)}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+.status{text-align:center;padding:60px 0;font-size:15px;color:var(--txt2);font-family:var(--mono);font-weight:500}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-right:10px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-.retry-btn{margin-top:10px;font-size:11px;font-family:var(--mono);color:var(--blue);cursor:pointer;background:none;border:1px solid var(--border);border-radius:4px;padding:3px 10px}
+.retry-btn{margin-top:12px;font-size:13px;font-family:var(--mono);color:var(--blue);cursor:pointer;background:none;border:1px solid var(--border);border-radius:5px;padding:5px 12px;font-weight:500}
 
-@media(max-width:700px){
+@media(max-width:900px){
   .cards{grid-template-columns:repeat(3,1fr)}
   .chart-grid{grid-template-columns:1fr}
-  .office-grid{grid-template-columns:1fr}
-  .header{flex-direction:column;gap:6px}
-  .prog-items{flex-wrap:wrap}
-  body{padding:16px 12px 40px}
+  .header{flex-direction:column;gap:8px}
+  body{padding:20px 14px 50px}
 }
-@media(max-width:480px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.cards{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -116,15 +114,15 @@ tr:last-child td{border-bottom:none}
   <div class="tabs" id="tabNav">
     <div class="tab active" data-tab="0">各階段進度</div>
     <div class="tab" data-tab="1">月度達成率</div>
-    <div class="tab" data-tab="2">廠商分析</div>
+    <div class="tab" data-tab="2">報名廠商分析</div>
   </div>
   <div id="pane0" class="pane active"></div>
   <div id="pane1" class="pane"></div>
   <div id="pane2" class="pane"></div>
-  <div class="status" id="status"><span class="spinner"></span>從 Google Sheets 讀取資料中…</div>
+  <div class="status" id="status"><span class="spinner"></span>資料載入中…</div>
 </div>
 <script>
-const API='https://script.google.com/macros/s/AKfycbwHcQ0iHXKKh6mXioPveCcdqD_KhUTA_TqzeELYRg37kQX5nsFYbWpHkV3MyRb70o5w/exec';
+const API='https://script.google.com/macros/s/AKfycbzf5SQup4s--ApSfBB8lAlN35V8j2B-ra5K_7UP25ovt72r2aq_9ZHPcYNsMsqOioKY/exec';
 const YEAR_TOTAL=300;
 const PM=['4月','5月','6月','7月','8月','9月','10月','11月'];
 const _m=new Date().getMonth()+1;
@@ -149,9 +147,12 @@ function pad(n){return String(n).padStart(2,'0')}
 
 function renderCards(d){
   var c=d.cards;
-  [{l:'總報名數',v:c.totalApproved,s:'審核通過',cl:''},{l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},{l:'待繳費',v:c.unpaid,s:'家',cl:'pct-amber'},{l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},{l:'已交付',v:c.delivered,s:'看板',cl:'pct-green'}].forEach(function(){});
   document.getElementById('cards').innerHTML=[
-    {l:'總報名數',v:c.totalApproved,s:'審核通過',cl:''},{l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},{l:'待繳費',v:c.unpaid,s:'家',cl:'pct-amber'},{l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},{l:'已交付',v:c.delivered,s:'看板',cl:'pct-green'}
+    {l:'總報名數',v:c.totalRegistered,s:'家',cl:''},
+    {l:'審核通過',v:c.totalApproved,s:'家',cl:''},
+    {l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},
+    {l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},
+    {l:'已交付',v:c.delivered,s:'看板',cl:'pct-green'}
   ].map(i=>'<div class="card"><div class="card-l">'+i.l+'</div><div class="card-v '+i.cl+'">'+i.v+'</div><div class="card-s">'+i.s+'</div></div>').join('');
 }
 
@@ -283,7 +284,7 @@ function renderTab3(d){
 
 async function init(){
   document.getElementById('status').style.display='block';
-  document.getElementById('status').innerHTML='<span class="spinner"></span>從 Google Sheets 讀取資料中…';
+  document.getElementById('status').innerHTML='<span class="spinner"></span>資料載入中…';
   try{
     var res=await fetch(API);var d=await res.json();
     document.getElementById('status').style.display='none';
@@ -293,7 +294,7 @@ async function init(){
   }catch(e){
     document.getElementById('status').className='status';
     document.getElementById('status').style.color='var(--red)';
-    document.getElementById('status').innerHTML='無法讀取資料，請確認 Apps Script 已正確部署。<br><button class="retry-btn" onclick="init()">重新載入</button>';
+    document.getElementById('status').innerHTML='資料載入失敗，請稍後再試。<br><button class="retry-btn" onclick="init()">重新載入</button>';
   }
 }
 init();
