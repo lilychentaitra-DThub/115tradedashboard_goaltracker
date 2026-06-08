@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <link rel="icon" type="image/png" sizes="32x32" href="/115tradedashboard_goaltracker/favicon-48x48.png">
 <meta charset="UTF-8">
+<link rel="icon" type="image/png" sizes="32x32" href="/115tradedashboard_goaltracker/favicon-48x48.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>115年企業進出口數據看板 — 專案追蹤儀表板</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -113,9 +113,9 @@ tr:last-child td{border-bottom:none}
   </div>
   <div class="cards" id="cards"></div>
   <div class="tabs" id="tabNav">
-    <div class="tab active" data-tab="0">各階段進度</div>
-    <div class="tab" data-tab="1">月度達成率</div>
-    <div class="tab" data-tab="2">報名廠商分析</div>
+    <div class="tab active" data-tab="0">月度達成率</div>
+    <div class="tab" data-tab="1">各階段進度</div>
+    <div class="tab" data-tab="2">廠商分析</div>
   </div>
   <div id="pane0" class="pane active"></div>
   <div id="pane1" class="pane"></div>
@@ -149,7 +149,7 @@ function pad(n){return String(n).padStart(2,'0')}
 function renderCards(d){
   var c=d.cards;
   document.getElementById('cards').innerHTML=[
-    {l:'總報名數',v:c.totalRegistered,s:'家',cl:''},
+    {l:'總報名數',v:c.totalRegistered,s:'全部',cl:''},
     {l:'審核通過',v:c.totalApproved,s:'家',cl:''},
     {l:'已繳費',v:c.paid,s:'家',cl:'pct-green'},
     {l:'已回填問卷',v:c.surveyFilled,s:'家',cl:''},
@@ -186,7 +186,7 @@ function renderTab0(d){
   var html='<div class="sec"><div class="sec-title">繳費狀態</div><div id="p-pay"></div></div>';
   html+='<div class="sec"><div class="sec-title">需求調查進度</div><div id="p-srv"></div></div>';
   html+='<div class="sec"><div class="sec-title">看板製作進度</div><div id="p-dsh"></div></div>';
-  document.getElementById('pane0').innerHTML=html;
+  document.getElementById('pane1').innerHTML=html;
   renderProgress('',d.payment,PAL.payment,document.getElementById('p-pay'));
   renderProgress('',d.survey,PAL.survey,document.getElementById('p-srv'));
   renderProgress('',d.dashboard,PAL.dashboard,document.getElementById('p-dsh'));
@@ -195,7 +195,7 @@ function renderTab0(d){
 /* ── Tab 1: Monthly ── */
 function renderTab1(d){
   var m=d.monthly||[];
-  if(!m.length){document.getElementById('pane1').innerHTML='<div class="sec"><p class="muted">無月度資料</p></div>';return}
+  if(!m.length){document.getElementById('pane0').innerHTML='<div class="sec"><p class="muted">無月度資料</p></div>';return}
   var cT=0,cA=0,rows='';
   m.forEach(r=>{
     cT+=r.target; if(r.actual!=null) cA+=r.actual;
@@ -213,7 +213,7 @@ function renderTab1(d){
   var tA=m.filter(r=>r.actual!=null).reduce((s,r)=>s+r.actual,0);
   var tP=Math.round(tA/YEAR_TOTAL*100),tc=pc(tP);
   rows+='<tr class="total-row"><td>年度合計</td><td>'+YEAR_TOTAL+'</td><td>'+tA+'</td><td>'+pb(tP,tc)+'</td><td>—</td><td>—</td><td>—</td></tr>';
-  document.getElementById('pane1').innerHTML='<div class="sec" style="padding:0;overflow:auto"><table><thead><tr><th>月份</th><th>月度目標</th><th>月度實績</th><th>月度達成率</th><th>年度累計目標</th><th>年度累計實績</th><th>年度達成率</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  document.getElementById('pane0').innerHTML='<div class="sec" style="padding:0;overflow:auto"><table><thead><tr><th>月份</th><th>月度目標</th><th>月度實績</th><th>月度達成率</th><th>年度累計目標</th><th>年度累計實績</th><th>年度達成率</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 /* ── Tab 2: Analysis ── */
